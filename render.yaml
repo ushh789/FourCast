@@ -1,0 +1,69 @@
+services:
+  - type: web
+    name: ems-backend
+    runtime: docker
+    autoDeployTrigger: off
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ems-db
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: keyvalue
+          name: ems-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: keyvalue
+          name: ems-redis
+          property: port
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE
+        value: 1d
+      - key: REFRESH_TOKEN_EXPIRE
+        value: 7d
+      - key: SWAGGER_USER
+        sync: false
+      - key: SWAGGER_PASSWORD
+        sync: false
+      - key: BASE_URL
+        sync: false
+
+  - type: web
+    name: ems-frontend
+    runtime: docker
+    autoDeployTrigger: off
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+        sync: false
+
+  - type: keyvalue
+    name: ems-redis
+    region: frankfurt
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+
+databases:
+  - name: ems-db
+    region: frankfurt
+    plan: free
+    postgresMajorVersion: '17'

@@ -1,0 +1,36 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { PageResponse } from './page-response.utils';
+export class PageRequest {
+  @ApiProperty({
+    description: 'The page number to retrieve',
+    example: 1,
+    required: false,
+  })
+  pageNumber: number = 1;
+
+  @ApiProperty({
+    description: 'The number of items per page',
+    example: 200,
+    required: false,
+  })
+  pageSize: number = 200;
+
+  get skip(): number {
+    return this.pageNumber * this.pageSize - this.pageSize;
+  }
+
+  get take(): number {
+    return this.pageSize;
+  }
+
+  toPageResponse<T>(content: T[], count: number): PageResponse<T> {
+    return new PageResponse<T>(this, content, count);
+  }
+
+  getFilter() {
+    return {
+      skip: this.skip,
+      take: this.pageSize,
+    };
+  }
+}
