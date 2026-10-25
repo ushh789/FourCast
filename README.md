@@ -361,14 +361,15 @@ npm run start
 
 CI/CD workflows run tests and deploy to Render when you push to `main`:
 
-- **Backend** (`backend/.github/workflows/ci-cd.yml`) — lint, build, test, then deploy
-- **Frontend** (`frontend/.github/workflows/ci-cd.yml`) — lint, build, then deploy
+- **Backend** (`.github/workflows/backend.yml`) — lint, build, test, then deploy; runs on changes in `backend/`
+- **Frontend** (`.github/workflows/frontend.yml`) — lint, build, then deploy; runs on changes in `frontend/`
 
-To enable deploy in each repo:
+To enable deploy:
 
-1. **Get Deploy Hook URL** from [Render Dashboard](https://dashboard.render.com/) → service → Settings → Deploy Hook
-2. **Add GitHub Secret** in repo Settings → Secrets and variables → Actions:
-   - `RENDER_DEPLOY_HOOK` — deploy hook URL for the service
+1. **Get Deploy Hook URLs** from [Render Dashboard](https://dashboard.render.com/) → service → Settings → Deploy Hook
+2. **Add GitHub Secrets** in repo Settings → Secrets and variables → Actions:
+   - `RENDER_BACKEND_DEPLOY_HOOK` — deploy hook URL for `ems-backend`
+   - `RENDER_FRONTEND_DEPLOY_HOOK` — deploy hook URL for `ems-frontend`
 
 ### Environment Variables for Production
 
