@@ -361,7 +361,7 @@ npm run start
 
 CI/CD workflows run tests and deploy to Render when you push to `main`:
 
-- **Backend** (`.github/workflows/backend.yml`) — lint, build, test, then deploy; runs on changes in `backend/`
+- **Backend** (`.github/workflows/backend.yml`) — lint, build, test, migrations check, then migrate the production DB and deploy; runs on changes in `backend/`
 - **Frontend** (`.github/workflows/frontend.yml`) — lint, build, then deploy; runs on changes in `frontend/`
 
 To enable deploy:
@@ -370,6 +370,9 @@ To enable deploy:
 2. **Add GitHub Secrets** in repo Settings → Secrets and variables → Actions:
    - `RENDER_BACKEND_DEPLOY_HOOK` — deploy hook URL for `ems-backend`
    - `RENDER_FRONTEND_DEPLOY_HOOK` — deploy hook URL for `ems-frontend`
+   - `RENDER_DATABASE_URL` — **External Database URL** of `ems-db` (Render → database → Connections); used to run `prisma migrate deploy` before the backend deploy
+
+The **Migrations Check** job applies all migrations to a clean Postgres and fails if `schema.prisma` has changes without a migration.
 
 ### Environment Variables for Production
 

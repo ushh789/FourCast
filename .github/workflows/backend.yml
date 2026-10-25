@@ -14,7 +14,8 @@ on:
 
 concurrency:
   group: backend-ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel main runs: a new push must not interrupt a running migration
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -105,10 +106,75 @@ jobs:
       - run: npm run test:integration -- --runInBand
       - run: npm run test:e2e -- --runInBand
 
+  migrations-check:
+    name: Migrations Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ems
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ems"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ems?schema=public
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Apply migrations to a clean database
+        run: npx prisma migrate deploy
+      - name: Check schema.prisma has no changes missing a migration
+        run: |
+          if ! npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code; then
+            echo "::error::schema.prisma differs from migrations. Run 'npm run db:migrate:dev' and commit the new migration."
+            exit 1
+          fi
+
+  migrate:
+    name: Migrate Production DB
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [lint, build, test-unit, test-integration, migrations-check]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Don't run two migrations against production at the same time
+    concurrency:
+      group: backend-migrate-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Apply migrations
+        env:
+          DATABASE_URL: ${{ secrets.RENDER_DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Secret RENDER_DATABASE_URL is not set"
+            exit 1
+          fi
+          npx prisma migrate deploy
+
   deploy:
     name: Deploy to Render
     runs-on: ubuntu-latest
-    needs: [lint, build, test-unit, test-integration]
+    needs: [migrate]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     # No checkout in this job, so the workflow-level working-directory does not exist
     defaults:
