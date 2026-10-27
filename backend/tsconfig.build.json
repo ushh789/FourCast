@@ -8,6 +8,7 @@
     "generated",
     "prisma.config.ts",
     "prisma",
-    "scraper"
+    "scraper",
+    "scripts"
   ]
 }
