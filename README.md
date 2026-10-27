@@ -291,6 +291,8 @@ npm run db:migrate:reset
 
 ## 💻 Development
 
+Concurrency and distributed patterns used in the project are described with sequence diagrams in [Concurrency patterns](docs/CONCURRENCY_PATTERNS.md).
+
 ### Backend Development
 
 ```bash
