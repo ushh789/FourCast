@@ -14,6 +14,7 @@ Related documents in this folder:
 - [UML.md](UML.md) — UML models (use case, class, component, sequence, activity, state, deployment, ER)
 - [IDENTITY_MANAGEMENT.md](IDENTITY_MANAGEMENT.md) — identity lifecycle, authentication, authorization and session
   management
+- [ERROR_HANDLING.md](ERROR_HANDLING.md) — error response format, status codes and client handling
 
 ---
 
@@ -221,8 +222,10 @@ actors are used throughout the requirements and the use case diagram in [UML.md]
 ### 2.6 User Documentation
 
 - [README.md](../README.md) — installation, configuration, running, deployment.
-- Swagger UI at `/api/docs` (JSON at `/api/docs/json`) — complete API reference with request/response schemas.
-- This SRS, [UML.md](UML.md), [IDENTITY_MANAGEMENT.md](IDENTITY_MANAGEMENT.md).
+- [Swagger UI](https://ems-backend-8b3e.onrender.com/api/docs#/) at `/api/docs` (JSON at `/api/docs/json`) — complete
+  API reference with request/response schemas; the same document is generated into
+  `backend/generated/openapi/swagger.json` by `npm run swagger:generate`.
+- This SRS, [UML.md](UML.md), [IDENTITY_MANAGEMENT.md](IDENTITY_MANAGEMENT.md), [ERROR_HANDLING.md](ERROR_HANDLING.md).
 
 ### 2.7 Assumptions and Dependencies
 
