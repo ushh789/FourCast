@@ -104,6 +104,12 @@ ems/
 │   │   └── styles/         # Global styles
 │   └── Dockerfile
 │
+├── docs/                    # Project documentation
+│   ├── ARCHITECTURE.md      # Architecture classification and diagrams
+│   ├── IDENTITY_MANAGEMENT.md # Authentication and identity flows
+│   ├── SRS.md               # Software requirements specification
+│   └── UML.md               # UML models and detailed diagrams
+│
 └── docker-compose.yaml      # Docker Compose configuration
 ```
 
